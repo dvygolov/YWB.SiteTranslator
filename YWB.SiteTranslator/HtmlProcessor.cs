@@ -98,7 +98,7 @@ namespace YWB.SiteTranslator
 
                 case NodeType.Text:
                     // script and style must not be output
-                    string parentName = node.ParentElement.TagName;
+                    string parentName = node.ParentElement.TagName.ToLowerInvariant();
                     if (parentName == "script" || parentName == "style") break;
                     // get text
                     string text = node.Text();
@@ -156,7 +156,7 @@ namespace YWB.SiteTranslator
 
                 case NodeType.Text:
                     // script and style must not be output
-                    string parentName = node.ParentElement.TagName;
+                    string parentName = node.ParentElement.TagName.ToLowerInvariant();
                     if (parentName == "script" || parentName == "style") break;
                     // get text
                     string text = node.Text();
