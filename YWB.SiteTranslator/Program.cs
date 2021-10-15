@@ -10,7 +10,7 @@ namespace YWB.SiteTranslator
         {
             Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.WriteLine("Sites Translator by Yellow Web ver 2.0");
+            Console.WriteLine("Sites Translator by Yellow Web ver 2.1");
             Console.WriteLine("If you like this software, please, donate!");
             DonationHelper.Info();
             await Task.Delay(5000);
@@ -31,7 +31,7 @@ namespace YWB.SiteTranslator
                     var answer = YesNoSelector.ReadAnswerEqualsYes("Do you want to translate extracted text using DeepL API?");
                     if (answer)
                     {
-                        Console.WriteLine("To which language do you want the text to be translated?");
+                        Console.WriteLine("To which language do you want to translate?");
                         Console.WriteLine("1.English");
                         Console.WriteLine("2.Russian");
                         var l = YesNoSelector.GetMenuAnswer(2);
@@ -39,8 +39,7 @@ namespace YWB.SiteTranslator
                         var trans = new DeeplService();
                         foreach (var ti in txt)
                         {
-                            if (ti.Text.Length < 2) 
-                                continue;
+                            if (ti.Text.Length < 2) continue;
                             ti.Translation = await trans.TranslateAsync(ti.Text, l == 1 ? DeepL.Language.English : DeepL.Language.Russian);
                         }
                     }

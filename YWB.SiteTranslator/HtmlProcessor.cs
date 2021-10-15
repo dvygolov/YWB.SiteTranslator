@@ -46,6 +46,8 @@ namespace YWB.SiteTranslator
             var parser = context.GetService<IHtmlParser>();
             var html = File.ReadAllText(Path.Combine(_fullPath, _fileName));
             html = Regex.Replace(html, $"<a[^>]+>{offerName}</a>", offerName);
+            html = Regex.Replace(html, $@"<a[^>]+>\s*<[^>]+>\s*{offerName}\s*</[^>]+>\s*</a>", offerName);
+
             var doc = await parser.ParseDocumentAsync(html);
             ExtractTextRecursive(doc.DocumentElement.GetRoot(), res);
             return res;
@@ -60,13 +62,30 @@ namespace YWB.SiteTranslator
             var html = File.ReadAllText(Path.Combine(_fullPath, _fileName));
 
             string aStart = string.Empty;
+            string aEnd = string.Empty;
             if (!string.IsNullOrEmpty(offerName))
             {
+                var r1 = $"(<a[^>]+>){offerName}(</a>)";
+                var r2 = $@"(<a[^>]+>\s*<[^>]+>)\s*{offerName}\s*(</[^>]+>\s*</a>)";
                 //saves <a> tag info
-                var match = Regex.Match(html, $"(<a[^>]+>){offerName}</a>");
-                aStart = match.Groups[1].Value;
+                var match = Regex.Match(html, r1);
+                if (match.Success)
+                {
+                    aStart = match.Groups[1].Value;
+                    aEnd = match.Groups[2].Value;
+                }
+                else
+                {
+                    match = Regex.Match(html, r2);
+                    if (match.Success)
+                    {
+                        aStart = match.Groups[1].Value;
+                        aEnd = match.Groups[2].Value;
+                    }
+                }
                 //remove all offer links
-                html = Regex.Replace(html, $"(<a[^>]+>){offerName}</a>", offerName);
+                html = Regex.Replace(html, r1, offerName);
+                html = Regex.Replace(html, r2, offerName);
             }
 
             var doc = await parser.ParseDocumentAsync(html);
@@ -76,7 +95,7 @@ namespace YWB.SiteTranslator
             if (!string.IsNullOrEmpty(newOfferName))
             {
                 //add <a> tag
-                html = html.Replace(newOfferName, $"{aStart}{newOfferName}</a>");
+                html = html.Replace(newOfferName, $"{aStart}{newOfferName}{aEnd}");
             }
 
             html = PhpHelper.CorrectPhpVariables(html);
