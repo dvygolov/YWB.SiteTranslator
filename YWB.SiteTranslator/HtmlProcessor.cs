@@ -59,7 +59,7 @@ namespace YWB.SiteTranslator
             var parser = context.GetService<IHtmlParser>();
             var html = File.ReadAllText(Path.Combine(_fullPath, _fileName));
 
-            string aStart=string.Empty;
+            string aStart = string.Empty;
             if (!string.IsNullOrEmpty(offerName))
             {
                 //saves <a> tag info
@@ -121,7 +121,12 @@ namespace YWB.SiteTranslator
                     // get text
                     string text = node.Text();
                     // check the text is meaningful and not a bunch of whitespaces
-                    if (text.Trim().Length != 0) txt.Add(new TextItem(text.Trim()));
+                    if (text.Trim().Length != 0)
+                    {
+                        var clean = text.Trim();
+                        clean = Regex.Replace(clean, @"\s+", " ");
+                        txt.Add(new TextItem(clean));
+                    }
                     break;
                 case NodeType.Element:
                     switch (node.NodeName.ToLowerInvariant())
