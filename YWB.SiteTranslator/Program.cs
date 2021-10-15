@@ -10,10 +10,10 @@ namespace YWB.SiteTranslator
         {
             Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.WriteLine("Sites Translator by Yellow Web ver 1.0c");
+            Console.WriteLine("Sites Translator by Yellow Web ver 1.1");
             Console.WriteLine("If you like this software, please, donate!");
             DonationHelper.Info();
-            //await Task.Delay(5000);
+            await Task.Delay(5000);
             Console.WriteLine();
 
             Console.WriteLine("What do you want to do?");
@@ -41,8 +41,8 @@ namespace YWB.SiteTranslator
                     var csv = new CSVProcessor();
                     var txt = csv.Read();
                     var ex = new HtmlProcessor();
-                    await ex.TranslateAsync(offerName, newOfferName, txt);
-                    Console.WriteLine("Tranlation saved to \"indext.html\" file in the website's directory.");
+                    var newName = await ex.TranslateAsync(offerName, newOfferName, txt);
+                    Console.WriteLine($@"Tranlation saved to ""{newName}"" file in the website's directory.");
                     break;
                 }
             }
