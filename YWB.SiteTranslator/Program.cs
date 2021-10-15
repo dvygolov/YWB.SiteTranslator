@@ -10,7 +10,7 @@ namespace YWB.SiteTranslator
         {
             Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.WriteLine("Sites Translator by Yellow Web ver 2.1");
+            Console.WriteLine("Sites Translator by Yellow Web ver 2.2a");
             Console.WriteLine("If you like this software, please, donate!");
             DonationHelper.Info();
             await Task.Delay(5000);
