@@ -142,8 +142,7 @@ namespace YWB.SiteTranslator
                     // check the text is meaningful and not a bunch of whitespaces
                     if (text.Trim().Length != 0)
                     {
-                        var clean = text.Trim();
-                        clean = Regex.Replace(clean, @"\s+", " ");
+                        var clean = Regex.Replace(text, @"\s+", " ");
                         txt.Add(new TextItem(clean));
                     }
                     break;
