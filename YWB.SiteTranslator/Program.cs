@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DeepL;
+using System;
 using System.Threading.Tasks;
 using YWB.SiteTranslator.Helpers;
 
@@ -10,7 +11,7 @@ namespace YWB.SiteTranslator
         {
             Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.WriteLine("Sites Translator by Yellow Web ver 2.2a");
+            Console.WriteLine("Sites Translator by Yellow Web ver 2.3");
             Console.WriteLine("If you like this software, please, donate!");
             DonationHelper.Info();
             await Task.Delay(5000);
@@ -34,13 +35,22 @@ namespace YWB.SiteTranslator
                         Console.WriteLine("To which language do you want to translate?");
                         Console.WriteLine("1.English");
                         Console.WriteLine("2.Russian");
-                        var l = YesNoSelector.GetMenuAnswer(2);
+                        Console.WriteLine("3.Custom");
+                        var l = YesNoSelector.GetMenuAnswer(3);
 
+                        if (l == 3) Console.Write("Enter language name:");
+
+                        var language = l switch
+                        {
+                            2 => Language.Russian,
+                            3 => Enum.Parse<Language>(Console.ReadLine()),
+                            _ => Language.English
+                        };
                         var trans = new DeeplService();
                         foreach (var ti in txt)
                         {
                             if (ti.Text.Length < 2) continue;
-                            ti.Translation = await trans.TranslateAsync(ti.Text, l == 1 ? DeepL.Language.English : DeepL.Language.Russian);
+                            ti.Translation = await trans.TranslateAsync(ti.Text, language);
                         }
                     }
                     var csv = new CSVProcessor();
