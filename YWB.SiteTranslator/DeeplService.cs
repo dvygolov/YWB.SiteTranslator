@@ -7,15 +7,17 @@ namespace YWB.SiteTranslator
     public class DeeplService
     {
         private string _apiKey;
+        private bool _useFreeApi = false;
         public DeeplService()
         {
             Console.Write("Enter your Deepl Api Key:");
             _apiKey = Console.ReadLine();
+            _useFreeApi = _apiKey.EndsWith(":fx");
         }
 
         public async Task<string> TranslateAsync(string text, Language l)
         {
-            using (DeepLClient client = new DeepLClient(_apiKey, useFreeApi: true))
+            using (DeepLClient client = new DeepLClient(_apiKey, useFreeApi: _useFreeApi))
             {
                 try
                 {

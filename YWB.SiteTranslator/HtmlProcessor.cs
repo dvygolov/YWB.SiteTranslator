@@ -14,8 +14,7 @@ namespace YWB.SiteTranslator
     public class HtmlProcessor
     {
         private const string Folder = "site";
-        private List<string> _ext = new List<string> { "htm", "html", "php" };
-        private string _fileName;
+        private string _fileName = "index.html";
         private string _fullPath;
         private int _curRecursionLevel = 0;
 
@@ -23,18 +22,13 @@ namespace YWB.SiteTranslator
         public HtmlProcessor()
         {
             _fullPath = PathHelper.GetFullPath(Folder);
-            bool fileExists = false;
-            foreach (var ex in _ext)
+            if (!File.Exists(Path.Combine(_fullPath, _fileName)))
             {
-                if (File.Exists(Path.Combine(_fullPath, $"index.{ex}")))
-                {
-                    fileExists = true;
-                    _fileName = $"index.{ex}";
-                    break;
-                }
+                if (!File.Exists(Path.Combine(_fullPath, "index.htm")))
+                    throw new FileNotFoundException("Couldn't find website's index html file!", "index.html");
+                else
+                    _fileName = "index.htm";
             }
-            if (!fileExists)
-                throw new FileNotFoundException("Couldn't find website's index file!");
         }
 
         public async Task<List<TextItem>> ExtractTextAsync(string offerName)
@@ -46,8 +40,6 @@ namespace YWB.SiteTranslator
             var parser = context.GetService<IHtmlParser>();
             var html = File.ReadAllText(Path.Combine(_fullPath, _fileName));
             html = Regex.Replace(html, $"<a[^>]+>{offerName}</a>", offerName);
-            html = Regex.Replace(html, $@"<a[^>]+>\s*<[^>]+>\s*{offerName}\s*</[^>]+>\s*</a>", offerName);
-
             var doc = await parser.ParseDocumentAsync(html);
             ExtractTextRecursive(doc.DocumentElement.GetRoot(), res);
             return res;
@@ -61,50 +53,22 @@ namespace YWB.SiteTranslator
             var parser = context.GetService<IHtmlParser>();
             var html = File.ReadAllText(Path.Combine(_fullPath, _fileName));
 
-            string aStart = string.Empty;
-            string aEnd = string.Empty;
-            if (!string.IsNullOrEmpty(offerName))
-            {
-                var r1 = $"(<a[^>]+>){offerName}(</a>)";
-                var r2 = $@"(<a[^>]+>\s*<[^>]+>)\s*{offerName}\s*(</[^>]+>\s*</a>)";
-                //saves <a> tag info
-                var match = Regex.Match(html, r1);
-                if (match.Success)
-                {
-                    aStart = match.Groups[1].Value;
-                    aEnd = match.Groups[2].Value;
-                }
-                else
-                {
-                    match = Regex.Match(html, r2);
-                    if (match.Success)
-                    {
-                        aStart = match.Groups[1].Value;
-                        aEnd = match.Groups[2].Value;
-                    }
-                }
-                //remove all offer links
-                html = Regex.Replace(html, r1, offerName);
-                html = Regex.Replace(html, r2, offerName);
-            }
+            //saves <a> tag info
+            var match = Regex.Match(html, $"(<a[^>]+>){offerName}</a>");
+            var aStart = match.Groups[1].Value;
+            //remove all offer links
+            html = Regex.Replace(html, $"(<a[^>]+>){offerName}</a>", offerName);
 
             var doc = await parser.ParseDocumentAsync(html);
             int i = 0;
             TranslateTextRecursive(doc.DocumentElement.GetRoot(), txt, ref i);
             html = doc.ToHtml();
-            if (!string.IsNullOrEmpty(newOfferName))
-            {
-                //add <a> tag
-                html = html.Replace(newOfferName, $"{aStart}{newOfferName}{aEnd}");
-            }
+            //add <a> tag
+            html = html.Replace(newOfferName, $"{aStart}{newOfferName}</a>");
 
-            html = PhpHelper.CorrectPhpVariables(html);
-            var ext = ".html";
-            if (_fileName.EndsWith(".php")) ext = ".php";
-            if (ext == ".php") //restore php tags
-                html = PhpHelper.RestorePhpTags(html);
 
-            var newName = $"{Path.GetFileNameWithoutExtension(_fileName)}t{ext}";
+            html=Regex.Replace(html, @"&lt;\?\=(\$[^?]+)\?&gt;", @"<?=$1?>"); //Replaces all PHP variables
+            var newName = Path.GetFileNameWithoutExtension(_fileName) + "t.html";
             File.WriteAllText(Path.Combine(_fullPath, newName), html);
             return newName;
         }
@@ -140,11 +104,7 @@ namespace YWB.SiteTranslator
                     // get text
                     string text = node.Text();
                     // check the text is meaningful and not a bunch of whitespaces
-                    if (text.Trim().Length != 0)
-                    {
-                        var clean = Regex.Replace(text, @"\s+", " ");
-                        txt.Add(new TextItem(clean));
-                    }
+                    if (text.Trim().Length != 0) txt.Add(new TextItem(text.Trim()));
                     break;
                 case NodeType.Element:
                     switch (node.NodeName.ToLowerInvariant())
