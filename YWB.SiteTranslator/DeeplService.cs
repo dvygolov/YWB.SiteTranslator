@@ -1,17 +1,26 @@
 ﻿using DeepL;
 using System;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace YWB.SiteTranslator
 {
     public class DeeplService
     {
+        private const string _fileName = "deepl.txt";
         private string _apiKey;
         private bool _useFreeApi = false;
         public DeeplService()
         {
-            Console.Write("Enter your Deepl Api Key:");
-            _apiKey = Console.ReadLine();
+            var fullPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _fileName);
+            if (File.Exists(fullPath))
+                _apiKey = File.ReadAllText(fullPath);
+            else
+            {
+                Console.Write("Enter your Deepl Api Key:");
+                _apiKey = Console.ReadLine();
+            }
             _useFreeApi = _apiKey.EndsWith(":fx");
         }
 
