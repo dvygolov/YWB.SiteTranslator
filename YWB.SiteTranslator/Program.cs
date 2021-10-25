@@ -11,7 +11,7 @@ namespace YWB.SiteTranslator
         {
             Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.WriteLine("Sites Translator by Yellow Web ver 2.3");
+            Console.WriteLine("Sites Translator by Yellow Web ver 2.4");
             Console.WriteLine("If you like this software, please, donate!");
             DonationHelper.Info();
             await Task.Delay(5000);
@@ -46,12 +46,29 @@ namespace YWB.SiteTranslator
                             3 => Enum.Parse<Language>(Console.ReadLine()),
                             _ => Language.English
                         };
+
+                        var newOfferName = offerName;
+                        answer = YesNoSelector.ReadAnswerEqualsYes("Do you want to change the offer in the autotranslated text?");
+                        if (answer)
+                        {
+                            Console.Write("Enter new offer name:");
+                            newOfferName = Console.ReadLine();
+                        }
                         var trans = new DeeplService();
                         foreach (var ti in txt)
                         {
                             if (ti.Text.Length < 2) continue;
-                            ti.Translation = await trans.TranslateAsync(ti.Text, language);
+                            var tt = ti.Text.Replace(offerName, newOfferName);
+                            ti.Translation = await trans.TranslateAsync(tt, language);
                         }
+                        Console.WriteLine("Translation complete!");
+                        answer = YesNoSelector.ReadAnswerEqualsYes("Do you want to translate the website's html with the autotranslated text?");
+                        if (answer)
+                        {
+                            var newName = await ex.TranslateAsync(offerName, newOfferName, txt);
+                            Console.WriteLine($@"Tranlation saved to ""{newName}"" file in the website's directory.");
+                        }
+
                     }
                     var csv = new CSVProcessor();
                     csv.Write(txt);
