@@ -11,7 +11,7 @@ namespace YWB.SiteTranslator
         {
             Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.WriteLine("Sites Translator by Yellow Web ver 2.4");
+            Console.WriteLine("Sites Translator by Yellow Web ver 2.5");
             Console.WriteLine("If you like this software, please, donate!");
             DonationHelper.Info();
             await Task.Delay(5000);
@@ -58,7 +58,9 @@ namespace YWB.SiteTranslator
                         foreach (var ti in txt)
                         {
                             if (ti.Text.Length < 2) continue;
-                            var tt = ti.Text.Replace(offerName, newOfferName);
+                            var tt = ti.Text;
+                            if (!string.IsNullOrEmpty(offerName) && !string.IsNullOrEmpty(newOfferName))
+                                tt = tt.Replace(offerName, newOfferName);
                             ti.Translation = await trans.TranslateAsync(tt, language);
                         }
                         Console.WriteLine("Translation complete!");
