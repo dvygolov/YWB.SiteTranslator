@@ -1,17 +1,30 @@
 ﻿using DeepL;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using YWB.SiteTranslator.Helpers;
+using YWB.SiteTranslator.Model;
 
 namespace YWB.SiteTranslator
 {
     public class DeeplService
     {
+        private const string _fileName = "deepl.txt";
         private string _apiKey;
+        private bool _useFreeApi = false;
         public DeeplService()
         {
-            Console.Write("Enter your Deepl Api Key:");
-            _apiKey = Console.ReadLine();
+            var fullPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _fileName);
+            if (File.Exists(fullPath))
+                _apiKey = File.ReadAllText(fullPath);
+            else
+            {
+                Console.Write("Enter your Deepl Api Key:");
+                _apiKey = Console.ReadLine();
+            }
+            _useFreeApi = _apiKey.EndsWith(":fx");
         }
 
         public Language SelectLanguage()
@@ -33,9 +46,29 @@ namespace YWB.SiteTranslator
             return language;
         }
 
-        public async Task<string> TranslateAsync(string text, Language l)
+        internal async Task<string> FullTranslateAsync(string offerName, List<TextItem> txt, Language language)
         {
-            using (DeepLClient client = new DeepLClient(_apiKey, useFreeApi: true))
+            var newOfferName = offerName;
+            var answer = YesNoSelector.ReadAnswerEqualsYes("Do you want to change the offer in the autotranslated text?");
+            if (answer)
+            {
+                Console.Write("Enter new offer name:");
+                newOfferName = Console.ReadLine();
+            }
+            foreach (var ti in txt)
+            {
+                if (ti.Text.Length < 2) continue;
+                var tt = ti.Text;
+                if (!string.IsNullOrEmpty(offerName) && !string.IsNullOrEmpty(newOfferName))
+                    tt = tt.Replace(offerName, newOfferName);
+                ti.Translation = await TranslateTextAsync(tt, language);
+            }
+            return newOfferName;
+        }
+
+        private async Task<string> TranslateTextAsync(string text, Language l)
+        {
+            using (DeepLClient client = new DeepLClient(_apiKey, useFreeApi: _useFreeApi))
             {
                 try
                 {

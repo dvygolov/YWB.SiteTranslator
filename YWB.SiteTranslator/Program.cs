@@ -30,10 +30,13 @@ namespace YWB.SiteTranslator
                         {
                             var trans = new DeeplService();
                             var language = trans.SelectLanguage();
-                            foreach (var ti in txt)
+                            var newOfferName = await trans.FullTranslateAsync(offerName, txt, language);
+                            Console.WriteLine("Translation complete!");
+                            answer = YesNoSelector.ReadAnswerEqualsYes("Do you want to translate the website's html with the autotranslated text?");
+                            if (answer)
                             {
-                                if (ti.Text.Length < 2) continue;
-                                ti.Translation = await trans.TranslateAsync(ti.Text, language);
+                                var newName = await ex.TranslateAsync(offerName, newOfferName, txt);
+                                Console.WriteLine($@"Tranlation saved to ""{newName}"" file in the website's directory.");
                             }
                         }
                         var csv = new CSVProcessor();
