@@ -1,10 +1,8 @@
 ﻿using CsvHelper;
-using CsvHelper.Configuration;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using YWB.SiteTranslator.Helpers;
 using YWB.SiteTranslator.Model;
 

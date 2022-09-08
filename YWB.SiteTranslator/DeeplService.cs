@@ -18,7 +18,7 @@ namespace YWB.SiteTranslator
         {
             var fullPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _fileName);
             if (File.Exists(fullPath))
-                _apiKey = File.ReadAllText(fullPath);
+                _apiKey = File.ReadAllText(fullPath).TrimEnd();
             else
             {
                 Console.Write("Enter your Deepl Api Key:");
