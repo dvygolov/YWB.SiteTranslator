@@ -12,19 +12,22 @@ namespace YWB.SiteTranslator
     public class DeeplService
     {
         private const string _fileName = "deepl.txt";
-        private string _apiKey;
-        private bool _useFreeApi = false;
+        private DeepLClient _client;
+
         public DeeplService()
         {
             var fullPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _fileName);
+            string apiKey;
+
             if (File.Exists(fullPath))
-                _apiKey = File.ReadAllText(fullPath).TrimEnd();
+                apiKey = File.ReadAllText(fullPath).TrimEnd();
             else
             {
                 Console.Write("Enter your Deepl Api Key:");
-                _apiKey = Console.ReadLine();
+                apiKey = Console.ReadLine();
             }
-            _useFreeApi = _apiKey.EndsWith(":fx");
+            var useFreeApi = apiKey.EndsWith(":fx");
+            _client = new DeepLClient(apiKey, useFreeApi: useFreeApi);
         }
 
         public Language SelectLanguage()
@@ -68,19 +71,18 @@ namespace YWB.SiteTranslator
 
         private async Task<string> TranslateTextAsync(string text, Language l)
         {
-            using (DeepLClient client = new DeepLClient(_apiKey, useFreeApi: _useFreeApi))
+            while (true)
             {
                 try
                 {
-                    Translation translation = await client.TranslateAsync(text, l);
+                    Translation translation = await _client.TranslateAsync(text, l);
                     Console.WriteLine(translation.DetectedSourceLanguage);
                     Console.WriteLine(translation.Text);
                     return translation.Text;
                 }
-                catch (DeepLException exception)
+                catch (Exception exception)
                 {
                     Console.WriteLine($"An error occurred: {exception.Message}");
-                    return null;
                 }
             }
         }

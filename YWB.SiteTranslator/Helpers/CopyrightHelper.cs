@@ -7,7 +7,7 @@ namespace YWB.SiteTranslator.Helpers
     {
         public static async Task ShowAsync()
         {
-            Console.WriteLine(@"                       Sites Translator ver 2.4");
+            Console.WriteLine(@"                       Sites Translator ver 2.5");
             Console.WriteLine(@"   _            __     __  _ _             __          __  _     ");
             Console.WriteLine(@"  | |           \ \   / / | | |            \ \        / / | |    ");
             Console.WriteLine(@"  | |__  _   _   \ \_/ /__| | | _____      _\ \  /\  / /__| |__  ");
@@ -21,6 +21,7 @@ namespace YWB.SiteTranslator.Helpers
             Console.WriteLine("WebMoney: Z182653170916");
             Console.WriteLine("Bitcoin: bc1qqv99jasckntqnk0pkjnrjtpwu0yurm0qd0gnqv");
             Console.WriteLine("Ethereum: 0xBC118D3FDE78eE393A154C29A4545c575506ad6B");
+            Console.WriteLine("USDT TRC20: TKeNEVndhPSKXuYmpEwF4fVtWUvfCnWmra");
             await Task.Delay(3000);
             Console.WriteLine();
         }
