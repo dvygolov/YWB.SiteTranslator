@@ -4,6 +4,7 @@ using AngleSharp.Html.Parser;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YWB.SiteTranslator.Helpers;
@@ -13,8 +14,7 @@ namespace YWB.SiteTranslator
 {
     public class HtmlProcessor
     {
-        private const string Folder = "site";
-        private List<string> _ext = new List<string> { "htm", "html", "php" };
+        public const string Folder = "site";
         private string _fileName;
         private string _fullPath;
         private int _curRecursionLevel = 0;
@@ -23,18 +23,16 @@ namespace YWB.SiteTranslator
         public HtmlProcessor()
         {
             _fullPath = PathHelper.GetFullPath(Folder);
-            bool fileExists = false;
-            foreach (var ex in _ext)
-            {
-                if (File.Exists(Path.Combine(_fullPath, $"index.{ex}")))
-                {
-                    fileExists = true;
-                    _fileName = $"index.{ex}";
-                    break;
-                }
-            }
-            if (!fileExists)
+            _fileName = GetFileToProcess(_fullPath);
+        }
+
+        public static string GetFileToProcess(string path)
+        {
+            List<string> extensions = new List<string> { "htm", "html", "php" };
+            var ext = extensions.FirstOrDefault(ex => File.Exists(Path.Combine(path, $"index.{ex}")));
+            if (ext == null)
                 throw new FileNotFoundException("Couldn't find website's index file!");
+            return $"index.{ext}";
         }
 
         public async Task<List<TextItem>> ExtractTextAsync(string offerName)

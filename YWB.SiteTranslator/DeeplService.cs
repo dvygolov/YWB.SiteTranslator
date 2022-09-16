@@ -12,7 +12,7 @@ namespace YWB.SiteTranslator
     public class DeeplService
     {
         private const string _fileName = "deepl.txt";
-        private DeepLClient _client;
+        private Translator _client;
 
         public DeeplService()
         {
@@ -26,30 +26,43 @@ namespace YWB.SiteTranslator
                 Console.Write("Enter your Deepl Api Key:");
                 apiKey = Console.ReadLine();
             }
-            var useFreeApi = apiKey.EndsWith(":fx");
-            _client = new DeepLClient(apiKey, useFreeApi: useFreeApi);
-        }
-
-        public Language SelectLanguage()
-        {
-            Console.WriteLine("To which language do you want to translate?");
-            Console.WriteLine("1.English");
-            Console.WriteLine("2.Russian");
-            Console.WriteLine("3.Custom");
-            var l = YesNoSelector.GetMenuAnswer(3);
-
-            if (l == 3) Console.Write("Enter language name:");
-
-            var language = l switch
+            var options = new TranslatorOptions
             {
-                1 => Language.English,
-                2 => Language.Russian,
-                _ => Enum.Parse<Language>(Console.ReadLine()),
+                MaximumNetworkRetries = 5,
+                PerRetryConnectionTimeout = TimeSpan.FromSeconds(10),
             };
-            return language;
+            _client = new Translator(apiKey, options);
         }
 
-        internal async Task<string> FullTranslateAsync(string offerName, List<TextItem> txt, Language language)
+        public async Task<string> SelectLanguageAsync()
+        {
+            var targetLanguages = await _client.GetTargetLanguagesAsync();
+            var selected = SelectHelper.Select(targetLanguages, l => l.Name);
+            return selected.Code;
+        }
+
+        internal async Task FullDocumentTranslateAsync(FileInfo fi, FileInfo fo, string language)
+        {
+            try
+            {
+                await _client.TranslateDocumentAsync(fi, fo, null, language);
+            }
+            catch (DocumentTranslationException exception)
+            {
+                // If the error occurs *after* upload, the DocumentHandle will contain the document ID and key
+                if (exception.DocumentHandle != null)
+                {
+                    var handle = exception.DocumentHandle.Value;
+                    Console.WriteLine($"Document ID: {handle.DocumentId}, Document key: {handle.DocumentKey}");
+                }
+                else
+                {
+                    Console.WriteLine($"Error occurred during document upload: {exception.Message}");
+                }
+            }
+        }
+
+        internal async Task<string> FullTranslateAsync(string offerName, List<TextItem> txt, string language)
         {
             var newOfferName = offerName;
             var answer = YesNoSelector.ReadAnswerEqualsYes("Do you want to change the offer in the autotranslated text?");
@@ -69,14 +82,14 @@ namespace YWB.SiteTranslator
             return newOfferName;
         }
 
-        private async Task<string> TranslateTextAsync(string text, Language l)
+        private async Task<string> TranslateTextAsync(string text, string l)
         {
             while (true)
             {
                 try
                 {
-                    Translation translation = await _client.TranslateAsync(text, l);
-                    Console.WriteLine(translation.DetectedSourceLanguage);
+                    var translation = await _client.TranslateTextAsync(text, null, l);
+                    Console.WriteLine(translation.DetectedSourceLanguageCode);
                     Console.WriteLine(translation.Text);
                     return translation.Text;
                 }
