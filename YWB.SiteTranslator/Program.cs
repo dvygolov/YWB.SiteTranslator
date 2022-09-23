@@ -70,8 +70,8 @@ namespace YWB.SiteTranslator
                         var outFileName = $"{Path.GetFileNameWithoutExtension(inFileName)}_{lang}.html";
                         var fi = new FileInfo(Path.Combine(folderPath, inFileName));
                         var fo = new FileInfo(Path.Combine(folderPath, outFileName));
+                        Console.WriteLine("Translating, please wait...");
                         await deepl.FullDocumentTranslateAsync(fi, fo, lang);
-                        Console.WriteLine("All done!");
                         break;
                     }
             }
