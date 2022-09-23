@@ -62,7 +62,6 @@ namespace YWB.SiteTranslator
                     }
                 case 3:
                     {
-                        Console.WriteLine("Translating... Please wait!");
                         var deepl = new DeeplService();
                         var lang = await deepl.SelectLanguageAsync();
                         var folderPath = PathHelper.GetFullPath(HtmlProcessor.Folder);
