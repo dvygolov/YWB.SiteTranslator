@@ -31,7 +31,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.0.x
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
@@ -41,7 +41,7 @@ jobs:
         with:
           type: "zip"
           filename: "${{ env.PROJECT_NAME }}.${{ runner.os }}.zip"
-          directory: ./bin/Release/net7.0
+          directory: ./bin/Release/net8.0
       - name: Create Release
         uses: marvinpinto/action-automatic-releases@latest
         with:
@@ -49,4 +49,4 @@ jobs:
           automatic_release_tag: "latest.${{ runner.os }}"
           title: "Latest ${{ runner.os }} Release"
           prerelease: false
-          files: "./bin/Release/net7.0/${{ env.PROJECT_NAME }}.${{ runner.os }}.zip"
+          files: "./bin/Release/net8.0/${{ env.PROJECT_NAME }}.${{ runner.os }}.zip"
