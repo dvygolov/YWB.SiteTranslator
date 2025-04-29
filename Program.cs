@@ -8,7 +8,7 @@ namespace YWB.SiteTranslator
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static async Task Main()
         {
             Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.OutputEncoding = System.Text.Encoding.UTF8;

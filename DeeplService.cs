@@ -12,7 +12,7 @@ namespace YWB.SiteTranslator
     public class DeeplService
     {
         private const string _fileName = "deepl.txt";
-        private Translator _client;
+        private readonly Translator _client;
 
         public DeeplService()
         {
