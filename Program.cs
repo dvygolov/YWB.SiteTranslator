@@ -17,7 +17,7 @@ namespace YWB.SiteTranslator
             Console.WriteLine("What do you want to do?");
             Console.WriteLine("1. Extract website's text to csv");
             Console.WriteLine("2. Replace website's text from csv");
-            Console.WriteLine("3. Autotranslate html-document");
+            Console.WriteLine("3. Autotranslate html/txt file");
             var action = YesNoSelector.GetMenuAnswer(3);
             switch (action)
             {
@@ -32,7 +32,7 @@ namespace YWB.SiteTranslator
                         {
                             var trans = new DeeplService();
                             var language = await trans.SelectLanguageAsync();
-                            var newOfferName = await trans.FullTranslateAsync(offerName, txt, language);
+                            var newOfferName = await trans.TranslateExtractedTextAsync(offerName, txt, language);
                             Console.WriteLine("Translation complete!");
                             answer = YesNoSelector.ReadAnswerEqualsYes("Do you want to translate the website's html with the autotranslated text?");
                             if (answer)
@@ -70,7 +70,7 @@ namespace YWB.SiteTranslator
                         var fi = new FileInfo(Path.Combine(folderPath, inFileName));
                         var fo = new FileInfo(Path.Combine(folderPath, outFileName));
                         Console.WriteLine("Translating, please wait...");
-                        await deepl.FullDocumentTranslateAsync(fi, fo, lang);
+                        await deepl.TranslateWebsiteFileAsync(fi, fo, lang);
                         break;
                     }
             }

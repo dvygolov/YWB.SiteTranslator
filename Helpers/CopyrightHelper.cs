@@ -7,7 +7,7 @@ namespace YWB.SiteTranslator.Helpers
     {
         public static async Task ShowAsync()
         {
-            Console.WriteLine(@"                       Sites Translator ver 3.0");
+            Console.WriteLine(@"                       Sites Translator ver 3.1.0");
             Console.WriteLine(@"   _            __     __  _ _             __          __  _     ");
             Console.WriteLine(@"  | |           \ \   / / | | |            \ \        / / | |    ");
             Console.WriteLine(@"  | |__  _   _   \ \_/ /__| | | _____      _\ \  /\  / /__| |__  ");

@@ -41,28 +41,19 @@ namespace YWB.SiteTranslator
             return selected.Code;
         }
 
-        internal async Task FullDocumentTranslateAsync(FileInfo fi, FileInfo fo, string language)
+        internal async Task TranslateWebsiteFileAsync(FileInfo fi, FileInfo fo, string language)
         {
-            try
+            var extension = fi.Extension.ToLowerInvariant();
+            if (extension == ".html" || extension == ".htm" || extension == ".txt")
             {
-                await _client.TranslateDocumentAsync(fi, fo, null, language);
+                await TranslateMarkupFileAsync(fi, fo, language, extension);
+                return;
             }
-            catch (DocumentTranslationException exception)
-            {
-                // If the error occurs *after* upload, the DocumentHandle will contain the document ID and key
-                if (exception.DocumentHandle != null)
-                {
-                    var handle = exception.DocumentHandle.Value;
-                    Console.WriteLine($"Document ID: {handle.DocumentId}, Document key: {handle.DocumentKey}");
-                }
-                else
-                {
-                    Console.WriteLine($"Error occurred during document upload: {exception.Message}");
-                }
-            }
+
+            await _client.TranslateDocumentAsync(fi, fo, null, language);
         }
 
-        internal async Task<string> FullTranslateAsync(string offerName, List<TextItem> txt, string language)
+        internal async Task<string> TranslateExtractedTextAsync(string offerName, List<TextItem> txt, string language)
         {
             var newOfferName = offerName;
             var answer = YesNoSelector.ReadAnswerEqualsYes("Do you want to change the offer in the autotranslated text?");
@@ -98,6 +89,19 @@ namespace YWB.SiteTranslator
                     Console.WriteLine($"An error occurred: {exception.Message}");
                 }
             }
+        }
+
+        private async Task TranslateMarkupFileAsync(FileInfo fi, FileInfo fo, string language, string extension)
+        {
+            var sourceText = await File.ReadAllTextAsync(fi.FullName);
+            var options = new TextTranslateOptions
+            {
+                PreserveFormatting = true,
+                TagHandling = extension == ".txt" ? null : "html",
+            };
+            var translated = await _client.TranslateTextAsync(sourceText, null, language, options);
+            await File.WriteAllTextAsync(fo.FullName, translated.Text);
+            Console.WriteLine($@"Translation saved to ""{fo.FullName}"".");
         }
     }
 }
